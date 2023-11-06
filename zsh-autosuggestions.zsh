@@ -362,7 +362,7 @@ _zsh_autosuggest_suggest() {
 	local suggestion="$1"
 
 	if [[ -n "$suggestion" ]] && (( $#BUFFER )); then
-		POSTDISPLAY="${suggestion#$BUFFER}"
+		POSTDISPLAY=" -> ${suggestion}"
 	else
 		unset POSTDISPLAY
 	fi
@@ -387,7 +387,7 @@ _zsh_autosuggest_accept() {
 
 	# Only accept if the cursor is at the end of the buffer
 	# Add the suggestion to the buffer
-	BUFFER="$BUFFER$POSTDISPLAY"
+	BUFFER="${POSTDISPLAY:4}"
 
 	# Remove the suggestion
 	unset POSTDISPLAY
@@ -410,7 +410,7 @@ _zsh_autosuggest_accept() {
 # Accept the entire suggestion and execute it
 _zsh_autosuggest_execute() {
 	# Add the suggestion to the buffer
-	BUFFER="$BUFFER$POSTDISPLAY"
+	BUFFER="${POSTDISPLAY:4}"
 
 	# Remove the suggestion
 	unset POSTDISPLAY
@@ -428,7 +428,7 @@ _zsh_autosuggest_partial_accept() {
 	local original_buffer="$BUFFER"
 
 	# Temporarily accept the suggestion.
-	BUFFER="$BUFFER$POSTDISPLAY"
+	BUFFER="${POSTDISPLAY:4}"
 
 	# Original widget moves the cursor
 	_zsh_autosuggest_invoke_original_widget $@
@@ -728,6 +728,39 @@ _zsh_autosuggest_strategy_match_prev_cmd() {
 }
 
 #--------------------------------------------------------------------#
+# History Suggestion Strategy                                        #
+#--------------------------------------------------------------------#
+# Suggests the most recent history item that matches the given
+# prefix.
+#
+
+_zsh_autosuggest_strategy_space_history() {
+	# Reset options to defaults and enable LOCAL_OPTIONS
+	emulate -L zsh
+
+	# Enable globbing flags so that we can use (#m) and (x~y) glob operator
+	setopt EXTENDED_GLOB
+
+	# Escape backslashes and all of the glob operators so we can use
+	# this string as a pattern to search the $history associative array.
+	# - (#m) globbing flag enables setting references for match data
+	# TODO: Use (b) flag when we can drop support for zsh older than v5.0.8
+	local prefix="${1//(#m)[\\*?[\]<>()|^~#]/\\$MATCH}"
+
+	# Get the history items that match the prefix, excluding those that match
+	# the ignore pattern
+	local pattern="$prefix*"
+	pattern=$(echo $pattern | sed 's/ /*/g' | sed -E 's/\*+/*/g')
+	if [[ -n $ZSH_AUTOSUGGEST_HISTORY_IGNORE ]]; then
+		pattern="($pattern)~($ZSH_AUTOSUGGEST_HISTORY_IGNORE)"
+	fi
+	# Give the first history item matching the pattern as the suggestion
+	# - (r) subscript flag makes the pattern match on values
+	typeset -g suggestion="${history[(r)(#i)$pattern]}"
+	
+}
+
+#--------------------------------------------------------------------#
 # Fetch Suggestion                                                   #
 #--------------------------------------------------------------------#
 # Loops through all specified strategies and returns a suggestion
@@ -747,7 +780,7 @@ _zsh_autosuggest_fetch_suggestion() {
 		_zsh_autosuggest_strategy_$strategy "$1"
 
 		# Ensure the suggestion matches the prefix
-		[[ "$suggestion" != "$1"* ]] && unset suggestion
+		# [[ "$suggestion" != "$1"* ]] && unset suggestion
 
 		# Break once we've found a valid suggestion
 		[[ -n "$suggestion" ]] && break
