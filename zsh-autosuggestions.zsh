@@ -363,8 +363,9 @@ _zsh_autosuggest_suggest() {
 	local suggestion="$1"
 
 	if [[ -n "$suggestion" ]] && (( $#BUFFER )); then
-		POSTDISPLAY=" -> ${suggestion}"
-	else
+		POSTDISPLAY="
+->$ ${suggestion}"
+	els_zsh_autosuggest_suggeste
 		unset POSTDISPLAY
 	fi
 }
@@ -388,7 +389,7 @@ _zsh_autosuggest_accept() {
 
 	# Only accept if the cursor is at the end of the buffer
 	# Add the suggestion to the buffer
-	BUFFER="${POSTDISPLAY:4}"
+	BUFFER="${POSTDISPLAY:5}"
 
 	# Remove the suggestion
 	unset POSTDISPLAY
@@ -411,7 +412,7 @@ _zsh_autosuggest_accept() {
 # Accept the entire suggestion and execute it
 _zsh_autosuggest_execute() {
 	# Add the suggestion to the buffer
-	BUFFER="${POSTDISPLAY:4}"
+	BUFFER="${POSTDISPLAY:5}"
 
 	# Remove the suggestion
 	unset POSTDISPLAY
@@ -430,7 +431,7 @@ _zsh_autosuggest_partial_accept() {
 
 	# Temporarily accept the suggestion.
 	if [ ! -z "$POSTDISPLAY" ]; then
-		BUFFER="${POSTDISPLAY:4}"
+		BUFFER="${POSTDISPLAY:5}"
 	fi
 
 	# Original widget moves the cursor
