@@ -22,7 +22,7 @@ _zsh_autosuggest_strategy_space_history() {
 	# Get the history items that match the prefix, excluding those that match
 	# the ignore pattern
 	local pattern="$prefix*"
-	pattern=$(echo $pattern | sed 's/ /*/g' | sed -E 's/\*+/*/g')
+	pattern=$(echo $pattern | sed -E 's/ +/ /g'| sed 's/ /*?/g' | )
 	if [[ -n $ZSH_AUTOSUGGEST_HISTORY_IGNORE ]]; then
 		pattern="($pattern)~($ZSH_AUTOSUGGEST_HISTORY_IGNORE)"
 	fi

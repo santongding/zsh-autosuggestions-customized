@@ -63,7 +63,8 @@ _zsh_autosuggest_modify() {
 
 	# Optimize if manually typing in the suggestion or if buffer hasn't changed
 	if [[ "$BUFFER" = "$orig_buffer"* && "$orig_postdisplay" = "${BUFFER:$#orig_buffer}"* ]]; then
-		POSTDISPLAY="${orig_postdisplay:$(($#BUFFER - $#orig_buffer))}"
+		POSTDISPLAY="$orig_postdisplay"
+		# POSTDISPLAY="${orig_postdisplay:$(($#BUFFER - $#orig_buffer))}"
 		return $retval
 	fi
 
@@ -181,7 +182,7 @@ _zsh_autosuggest_partial_accept() {
 	# If we've moved past the end of the original buffer
 	if (( $cursor_loc > $#original_buffer )); then
 		# Set POSTDISPLAY to text right of the cursor
-		POSTDISPLAY="${BUFFER[$(($cursor_loc + 1)),$#BUFFER]}"
+		# POSTDISPLAY="${BUFFER[$(($cursor_loc + 1)),$#BUFFER]}"
 
 		# Clip the buffer at the cursor
 		BUFFER="${BUFFER[1,$cursor_loc]}"
