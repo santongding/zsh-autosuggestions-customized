@@ -429,7 +429,9 @@ _zsh_autosuggest_partial_accept() {
 	local original_buffer="$BUFFER"
 
 	# Temporarily accept the suggestion.
-	BUFFER="${POSTDISPLAY:4}"
+	if [ ! -z "$POSTDISPLAY" ]; then
+		BUFFER="${POSTDISPLAY:4}"
+	fi
 
 	# Original widget moves the cursor
 	_zsh_autosuggest_invoke_original_widget $@
@@ -751,7 +753,7 @@ _zsh_autosuggest_strategy_space_history() {
 	# Get the history items that match the prefix, excluding those that match
 	# the ignore pattern
 	local pattern="$prefix*"
-	pattern=$(echo $pattern | sed -E 's/ +/ /g'| sed 's/ /*?/g' | )
+	pattern=$(echo $pattern | sed -E 's/ +/ /g'| sed 's/ /*?/g')
 	if [[ -n $ZSH_AUTOSUGGEST_HISTORY_IGNORE ]]; then
 		pattern="($pattern)~($ZSH_AUTOSUGGEST_HISTORY_IGNORE)"
 	fi

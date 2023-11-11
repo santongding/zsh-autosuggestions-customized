@@ -167,7 +167,9 @@ _zsh_autosuggest_partial_accept() {
 	local original_buffer="$BUFFER"
 
 	# Temporarily accept the suggestion.
-	BUFFER="${POSTDISPLAY:4}"
+	if [ ! -z "$POSTDISPLAY" ]; then
+		BUFFER="${POSTDISPLAY:4}"
+	fi
 
 	# Original widget moves the cursor
 	_zsh_autosuggest_invoke_original_widget $@
