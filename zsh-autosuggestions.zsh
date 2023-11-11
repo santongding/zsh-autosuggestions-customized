@@ -365,7 +365,7 @@ _zsh_autosuggest_suggest() {
 	if [[ -n "$suggestion" ]] && (( $#BUFFER )); then
 		POSTDISPLAY="
 ->$ ${suggestion}"
-	els_zsh_autosuggest_suggeste
+	else
 		unset POSTDISPLAY
 	fi
 }
